@@ -8,6 +8,7 @@ import { Clozecard } from "src/entities/clozecard";
 import { escapeMarkdown } from "src/utils";
 import { Card } from "src/entities/card";
 import { htmlToMarkdown } from 'obsidian';
+import {md2cardMatchs} from "./qxxparser.js"
 
 export class Parser {
   private regex: Regex;
@@ -44,7 +45,7 @@ export class Parser {
     }
 
     note = this.substituteObsidianLinks(`[[${note}]]`, vault);
-    //qxx 生成卡片
+    //qxx 通过标签解析卡片
     cards = cards.concat(
       this.generateCardsWithTag(file, headings, deck, vault, note, globalTags)
     );
@@ -379,8 +380,9 @@ export class Parser {
     const contextAware = this.settings.contextAwareMode;
     const cards: Flashcard[] = [];
     // qxx 居然是用正则匹配文件内容;
-	console.log("qxx",this.regex.flashscardsWithTag)
-    const matches = [...file.matchAll(this.regex.flashscardsWithTag)];
+    // const matches = [...file.matchAll(this.regex.flashscardsWithTag)];
+	const matches = md2cardMatchs(file) as any;
+	console.debug('qxx matches',matches)
 
     const embedMap = this.getEmbedMap();
 
@@ -413,6 +415,7 @@ export class Parser {
       answer = this.parseLine(answer, vault);
 
       const initialOffset = match.index
+	  //qxx endingLine实际应该是endOffset
       const endingLine = match.index + match[0].length;
       const tags: string[] = this.parseTags(match[4], globalTags);
       const id: number = match[6] ? Number(match[6]) : -1;
@@ -443,11 +446,11 @@ export class Parser {
   }
 
   public containsCode(str: string[]): boolean {
-    for (const s of str) {
-      if (s.match(this.regex.codeBlock)) {
-        return true;
-      }
-    }
+    // for (const s of str) {
+    //   if (s.match(this.regex.codeBlock)) {
+    //     return true;
+    //   }
+    // }
     return false;
   }
 

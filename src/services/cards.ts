@@ -80,6 +80,7 @@ export class CardsService {
       }
       globalTags = this.parseGlobalTags(this.file);
       // TODO with empty check that does not call ankiCards line
+	  //qxx 当前文件里的id
       const ankiBlocks = this.parser.getAnkiIDsBlocks(this.file);
       const ankiCards = ankiBlocks
         ? await this.anki.getCards(this.getAnkiIDs(ankiBlocks))
@@ -92,12 +93,14 @@ export class CardsService {
         filePath,
         globalTags
       );
+	  console.debug('qxx generateFlashcards',cards)
       const [cardsToCreate, cardsToUpdate, cardsNotInAnki] =
         this.filterByUpdate(ankiCards, cards);
+  	  //qxx 
       const cardIds: number[] = this.getCardsIds(ankiCards, cards);
       const cardsToDelete: number[] = this.parser.getCardsToDelete(this.file);
 
-      console.info("Flashcards: Cards to create0000");
+      console.info("Flashcards: Cards to create");
       console.info(cardsToCreate);
       console.info("Flashcards: Cards to update");
       console.info(cardsToUpdate);
@@ -213,6 +216,7 @@ export class CardsService {
         });
 
         this.updateFrontmatter(frontmatter, deckName);
+		//qxx 写入id到md文件
         this.writeAnkiBlocks(cardsToCreate);
 
         this.notifications.push(
@@ -342,6 +346,7 @@ export class CardsService {
     return IDs;
   }
 
+  //ankiCards: anki里的card; generatedCards: 文件里解析的card
   public filterByUpdate(ankiCards: any, generatedCards: Card[]) {
     let cardsToCreate: Card[] = [];
     const cardsToUpdate: Card[] = [];
@@ -384,6 +389,7 @@ export class CardsService {
     return false;
   }
 
+  //qxx 已经插入的card的id
   public getCardsIds(ankiCards: any, generatedCards: Card[]): number[] {
     let ids: number[] = [];
 

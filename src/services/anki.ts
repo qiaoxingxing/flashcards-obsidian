@@ -78,6 +78,11 @@ export class Anki {
     }
   }
 
+  /**
+   * qxx: 插入卡片到anki
+   * @param cards 
+   * @returns 卡片ids
+   */
   public async addCards(cards: Card[]): Promise<number[]> {
     const notes: any = [];
 
