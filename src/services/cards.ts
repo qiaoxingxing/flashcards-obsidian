@@ -23,7 +23,7 @@ export class CardsService {
   private anki: Anki;
 
   private updateFile: boolean;
-  private totalOffset: number;
+  private totalOffset: number; //qxx: 我的理解: 对文件修改, 比如增加frontmatter、增加id会引起匹配的卡片的index的偏移, 就用这个变量来记录;
   private file: string;
   private notifications: string[];
 
