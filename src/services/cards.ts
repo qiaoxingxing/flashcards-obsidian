@@ -97,7 +97,7 @@ export class CardsService {
       const cardIds: number[] = this.getCardsIds(ankiCards, cards);
       const cardsToDelete: number[] = this.parser.getCardsToDelete(this.file);
 
-      console.info("Flashcards: Cards to create");
+      console.info("Flashcards: Cards to create0000");
       console.info(cardsToCreate);
       console.info("Flashcards: Cards to update");
       console.info(cardsToUpdate);

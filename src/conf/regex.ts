@@ -64,7 +64,10 @@ export class Regex {
       "( {0,3}[#]*)((?:[^\\n]\\n?)+?)(#" +
       settings.flashcardsTag +
       "(?:[/-]reverse)?)((?: *#[\\p{Number}\\p{Letter}\\-\\/_]+)*) *?\\n+((?:[^\\n]\\n?)*?(?=\\^\\d{13}|$))(?:\\^(\\d{13}))?";
-    this.flashscardsWithTag = new RegExp(str, flags);
+    // this.flashscardsWithTag = new RegExp(str, flags);
+    this.flashscardsWithTag = /([#]*)((?:[^\n]\n?)+?)(#card(?:[/-]reverse)?)((?: *#[\w-]+)*) *?\n+((?:\n|.)*?)(\^(\d{13})|(?:\n\1 )|(?:%%cardend%%))/gimu
+	
+	this.flashscardsWithTag = /\n([#]*)((?:[^\n])+?)(#card(?:[\/-]reverse)?)((?: *#[\w-]+)*) *?\n+((?:\n|.)*?)(\^(\d{13})|(?=\n\1 )|(?=%%cardend%%)|(?=\n#)|(?=\n##)|(?=\n###))/gimu
 
     // https://regex101.com/r/8wmOo8/1
     const sepLongest = settings.inlineSeparator.length >= settings.inlineSeparatorReverse.length ? settings.inlineSeparator : settings.inlineSeparatorReverse;

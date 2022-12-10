@@ -44,6 +44,7 @@ export class Parser {
     }
 
     note = this.substituteObsidianLinks(`[[${note}]]`, vault);
+    //qxx 生成卡片
     cards = cards.concat(
       this.generateCardsWithTag(file, headings, deck, vault, note, globalTags)
     );
@@ -377,6 +378,8 @@ export class Parser {
   ) {
     const contextAware = this.settings.contextAwareMode;
     const cards: Flashcard[] = [];
+    // qxx 居然是用正则匹配文件内容;
+	console.log("qxx",this.regex.flashscardsWithTag)
     const matches = [...file.matchAll(this.regex.flashscardsWithTag)];
 
     const embedMap = this.getEmbedMap();
