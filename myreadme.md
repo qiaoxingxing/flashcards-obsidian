@@ -7,13 +7,12 @@
   - 给`^id``前面增加空格或`-`号
 
 # todo
-- header里指定`%%cardend%%`作为结束;
+- header内部可以指定`%%cardend%%`作为结束;
 - qxxparser.js里把status改为context对象
 context = {
   isEnterCard:false,
   isEnterCodeBlock:false
 }
-
 
 # 零碎记录
 mklink /D "D:\obsidian-data\.obsidian\plugins\flashcard-qxx" "%cd%/docs/test-vault/.obsidian/plugins/flashcards-obsidian"

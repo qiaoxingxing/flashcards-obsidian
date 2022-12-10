@@ -1,8 +1,6 @@
 
 /**
-todo:
-- %%cardend%%匹配
-
+调试方法: 取消文件底部"nodejs调试代码段"的注释, 可以直接用node运行, 不需要用到obsidian;
 运行: node src/services/qxxparser.js
  */
 
@@ -106,6 +104,7 @@ const md2cardMatchs = function (file) {
 	return matches;
 }
 
+//nodejs调试代码段:
 // const fs = require('fs')
 // const path = require('path')
 // const md = fs.readFileSync(path.resolve('docs/demo2.md'), 'utf8')
