@@ -55,10 +55,12 @@ export class Parser {
     cards = cards.concat(
       this.generateSpacedCards(file, headings, deck, vault, note, globalTags)
     );
-    cards = cards.concat(
-      this.generateClozeCards(file, headings, deck, vault, note, globalTags)
-    );
+	//qxx 2023-01-14, 我暂时用不着, 注释掉;
+    // cards = cards.concat(
+    //   this.generateClozeCards(file, headings, deck, vault, note, globalTags)
+    // );
 
+	
     // Filter out cards that are fully inside a code block, a math block or a math inline block
     const codeBlocks = [...file.matchAll(this.regex.obsidianCodeBlock)];
     const mathBlocks = [...file.matchAll(this.regex.mathBlock)];

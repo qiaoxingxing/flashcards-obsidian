@@ -4,11 +4,11 @@
   "codeHighlightSupport": false,
   "inlineID": false,
   "contextSeparator": " > ",
-  "deck": "Default",
-  "folderBasedDeck": true,
+  "deck": "ob::default",
+  "folderBasedDeck": false,
   "flashcardsTag": "card",
   "inlineSeparator": "::",
-  "inlineSeparatorReverse": ":::",
+  "inlineSeparatorReverse": ":::zuofei",
   "defaultAnkiTag": "obsidian",
   "ankiConnectPermission": false
 }
