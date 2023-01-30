@@ -57,7 +57,11 @@ export abstract class Card {
     //     return false
     // }
 
-    const fields : any = Object.entries(card.fields);
+    let fields : any = Object.entries(card.fields);
+	// qxx 忽略"note"字段, 也就是不对比note字段
+	fields = fields.filter(n => !(n.length>0 && n[0].toLowerCase() == "note"));
+	// console.debug('qxx match fields', fields)
+
     // This is the case of a switch from a model to another one. It cannot be handeled
     if (fields.length !== Object.entries(this.fields).length) {
       return true;

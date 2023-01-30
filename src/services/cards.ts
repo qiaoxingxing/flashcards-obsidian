@@ -346,7 +346,12 @@ export class CardsService {
     return IDs;
   }
 
-  //ankiCards: anki里的card; generatedCards: 文件里解析的card
+  /**
+   * 
+   * @param ankiCards anki里的card;
+   * @param generatedCards 文件里解析的card
+   * @returns 
+   */
   public filterByUpdate(ankiCards: any, generatedCards: Card[]) {
     let cardsToCreate: Card[] = [];
     const cardsToUpdate: Card[] = [];
