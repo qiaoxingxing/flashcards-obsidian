@@ -5,7 +5,7 @@ import commonjs from '@rollup/plugin-commonjs';
 const PRODUCTION_PLUGIN_CONFIG = {
   input: 'main.ts',
   output: {
-    dir: '.',
+    dir: 'dist',
     sourcemap: 'inline',
     sourcemapExcludeSources: true,
     format: 'cjs',
