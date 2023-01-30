@@ -28,6 +28,15 @@ export class Parser {
     this.htmlConverter.setOption("simpleLineBreaks", true);
   }
 
+  /**
+   * 
+   * @param file 文件内容
+   * @param deck 
+   * @param vault 
+   * @param note 文件名
+   * @param globalTags 
+   * @returns 
+   */
   public generateFlashcards(
     file: string,
     deck: string,
@@ -43,7 +52,7 @@ export class Parser {
       // https://regex101.com/r/agSp9X/4
       headings = [...file.matchAll(this.regex.headingsRegex)];
     }
-
+	// console.debug('qxx raw note ',note)
     note = this.substituteObsidianLinks(`[[${note}]]`, vault);
     //qxx 通过标签解析卡片
     cards = cards.concat(
@@ -98,8 +107,22 @@ export class Parser {
   private getContext(
     headings: any,
     index: number,
-    headingLevel: number
+    headingLevel: number,
+	note: string
   ): string[] {
+	//qxx 提取文件名
+	//<a href="obsidian://open?vault=obsidian-data&file=…A%E7%BA%BF%E7%A8%8B%20JMM.md">java 并发 多线程 JMM</a>
+	const match = note.match(">(.*)</")
+	if(match){
+		note = match[1]
+	}
+	const filename = `【 ${note} 】`
+	// console.debug('qxx getContext',{
+	// 	headings,
+	// 	index,
+	// 	headingLevel,
+	// 	note
+	// })	
     const context: string[] = [];
     let currentIndex: number = index;
     let goalLevel = 6;
@@ -133,7 +156,7 @@ export class Parser {
         context.unshift(headings[i][2].trim());
       }
     }
-
+	context.unshift(filename)
     return context;
   }
 
@@ -158,7 +181,7 @@ export class Parser {
       }
       // Match.index - 1 because otherwise in the context there will be even match[1], i.e. the question itself
       const context = contextAware
-        ? this.getContext(headings, match.index - 1, headingLevel)
+        ? this.getContext(headings, match.index - 1, headingLevel,note)
         : "";
 
       const originalPrompt = match[2].trim();
@@ -227,7 +250,7 @@ export class Parser {
       }
       // Match.index - 1 because otherwise in the context there will be even match[1], i.e. the question itself
       const context = contextAware
-        ? this.getContext(headings, match.index - 1, headingLevel)
+        ? this.getContext(headings, match.index - 1, headingLevel,note)
         : "";
 
       // If all the curly clozes are inside a math block, then do not create the card
@@ -325,7 +348,7 @@ export class Parser {
       }
       // Match.index - 1 because otherwise in the context there will be even match[1], i.e. the question itself
       const context = contextAware
-        ? this.getContext(headings, match.index - 1, headingLevel)
+        ? this.getContext(headings, match.index - 1, headingLevel,note)
         : "";
 
       const originalQuestion = match[2].trim();
@@ -371,6 +394,16 @@ export class Parser {
     return cards;
   }
 
+  /**
+   * 
+   * @param file 文件内容
+   * @param headings 
+   * @param deck 
+   * @param vault 
+   * @param note 文件名链接
+   * @param globalTags 
+   * @returns 
+   */
   private generateCardsWithTag(
     file: string,
     headings: any,
@@ -397,7 +430,7 @@ export class Parser {
       const headingLevel = match[1].trim().length !== 0 ? match[1].length : -1;
       // Match.index - 1 because otherwise in the context there will be even match[1], i.e. the question itself
       const context = contextAware
-        ? this.getContext(headings, match.index - 1, headingLevel).concat([])
+        ? this.getContext(headings, match.index - 1, headingLevel,note).concat([])
         : "";
 
       const originalQuestion = match[2].trim();
