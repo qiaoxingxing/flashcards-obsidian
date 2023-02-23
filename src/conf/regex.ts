@@ -50,8 +50,8 @@ export class Regex {
     this.mathInline = /(\$)(.*?)(\$)/gi;
 
     this.cardsDeckLine = /cards-deck: [\p{L}]+/giu;
-	//qxx: id的^符号前面加空格或-号表示删除
-    this.cardsToDelete = /^\s*(?:\n)(?:[- =]+\^(\d{13}))(?:\n\s*?)?/gm;
+	//qxx: id的^符号前面加=或-号表示删除
+    this.cardsToDelete = /^\s*(?:\n)(?:[-=]+\^(\d{13}))(?:\n\s*?)?/gm;
 
 
     // https://regex101.com/r/WxuFI2/1
