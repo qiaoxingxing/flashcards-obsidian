@@ -80,7 +80,7 @@ export class CardsService {
       }
       globalTags = this.parseGlobalTags(this.file);
       // TODO with empty check that does not call ankiCards line
-	  //qxx 当前文件里的id
+	  //qxx 当前文件里的id, 匹配内容类似: "^1677148708408       \n"(id后的空格一直匹配到换行)
       const ankiBlocks = this.parser.getAnkiIDsBlocks(this.file);
       const ankiCards = ankiBlocks
         ? await this.anki.getCards(this.getAnkiIDs(ankiBlocks))
