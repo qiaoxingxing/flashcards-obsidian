@@ -8,6 +8,7 @@ import { noticeTimeout, flashcardsIcon } from 'src/conf/constants';
 export default class ObsidianFlashcard extends Plugin {
     private settings: ISettings
     private cardsService: CardsService
+    private lastGenRecentTime: Date //最后用处理最近文件的时间
 
     async onload() {
         addIcon("flashcards", flashcardsIcon)
@@ -44,6 +45,16 @@ export default class ObsidianFlashcard extends Plugin {
                 return true;
             }
         });
+        this.addCommand({
+            id: 'generate-flashcard-recent-files',
+            name: 'Generate for the recent files',
+            checkCallback: (checking: boolean) => {
+                if (!checking) {
+                    this.generateRecentfilesCards()
+                }
+                return true;
+            }
+        });
 
         this.addRibbonIcon('flashcards', 'Generate flashcards', () => {
             const activeFile = this.app.workspace.getActiveFile()
@@ -66,7 +77,24 @@ export default class ObsidianFlashcard extends Plugin {
     }
 
     private getDefaultSettings(): ISettings {
-        return { contextAwareMode: true, sourceSupport: false, codeHighlightSupport: false, inlineID: false, contextSeparator: " > ", deck: "Default", folderBasedDeck: true, flashcardsTag: "card", inlineSeparator: "::", inlineSeparatorReverse: ":::", defaultAnkiTag: "obsidian", ankiConnectPermission: false }
+        return { contextAwareMode: true, sourceSupport: false, codeHighlightSupport: false, inlineID: false, contextSeparator: " > ", deck: "Default", folderBasedDeck: true, flashcardsTag: "card", inlineSeparator: "::", inlineSeparatorReverse: ":::", defaultAnkiTag: "obsidian", ankiConnectPermission: false, otherConfigs: '' }
+    }
+    getOtherConfigs(): any {
+        const defaultConfig = {
+            recentFilesCount: 50
+        }
+        let configs = this.settings.otherConfigs;
+        if (!configs) {
+            return defaultConfig
+        }
+        try {
+            let json = JSON.parse(configs);
+            json = Object.assign(defaultConfig, json);
+            return json
+        } catch (error) {
+            console.error('getOtherConfigs error', error)
+        }
+        return defaultConfig
     }
 
     private generateCards(activeFile: TFile, title?: String) {
@@ -97,10 +125,10 @@ export default class ObsidianFlashcard extends Plugin {
 
     }
 
-    //qxx
+    //qxx 处理打开的标签页
     private async generateOpenedCards() {
         console.info("generateOpenedCards start")
-        const items = this.getItems()
+        const items = this.getOpenItems()
         const files = items.map(n => n.view?.file)
         const fileSet = new Set(files)
         for (let file of fileSet) {
@@ -108,8 +136,48 @@ export default class ObsidianFlashcard extends Plugin {
             await this.generateCards(file, file.name)
         }
     }
+    // 处理最近打开的文件, 需要recent-files-obsidian插件
+    // 处理逻辑: 选择最近的recentFilesCount个文件, 只处理lastGenRecentTime之后修改过的
+    // todo: 这个逻辑可以优化,用一段时间再说
+    private async generateRecentfilesCards() {
+        const oneDayBefore = new Date(new Date().getTime() - 12 * 3600 * 1000)
+        this.lastGenRecentTime = this.lastGenRecentTime || oneDayBefore;
+        console.info("generateRecentfilesCards start", this.lastGenRecentTime)
+        const recentFiles = app.plugins.plugins['recent-files-obsidian']?.data?.recentFiles;
+        if (!recentFiles || recentFiles.length <= 0) {
+            this.showMsg("there is no recentFiles")
+            return;
+        }
+        // recentFiles是array, 元素的属性:
+        // basename: "obsidian 插件 开发"
+        // path: "可搜索/input/obsidian 插件 开发.md"
+        const fileCount = this.getOtherConfigs().recentFilesCount;
+        const parseFiles = recentFiles.slice(0, fileCount);
+        const parseTFiles: TFile[] = parseFiles
+            .map((n: any) => this.app.vault.getAbstractFileByPath(n.path))
+            .filter((file : TFile)=>{
+            if (file.stat.mtime < this.lastGenRecentTime.getTime()) {
+                console.debug('generateRecentfilesCards file contine', file)
+                return false
+            }
+            return true
+        })
+        const fileSet = new Set(parseTFiles)
+        if(fileSet.size <=0){
+            this.showMsg("no recent file to generate")
+            return
+        }
+        this.showMsg(fileSet.size + " recent files to generate")
+
+        for (let file of fileSet) {
+            console.debug("generateRecentfilesCards file", file)
+            await this.generateCards(file, file.name)
+        }
+        this.lastGenRecentTime = new Date();
+    }
+
     //copy from switcher++ src/Handlers/editorHandler.ts
-    getItems(): WorkspaceLeaf[] {
+    getOpenItems(): WorkspaceLeaf[] {
         // const { excludeViewTypes, includeSidePanelViewTypes } = this.settings;
         const excludeViewTypes = ['empty'];
         // const includeSidePanelViewTypes = ['backlink', 'image', 'markdown', 'pdf'];
