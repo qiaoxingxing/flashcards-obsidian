@@ -86,7 +86,7 @@ export class CardsService {
         ? await this.anki.getCards(this.getAnkiIDs(ankiBlocks))
         : undefined;
 
-      const cards: Card[] = this.parser.generateFlashcards(
+      const cards: Card[] = await this.parser.generateFlashcards(
         this.file,
         deckName,
         vaultName,

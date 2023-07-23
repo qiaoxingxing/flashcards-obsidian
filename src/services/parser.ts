@@ -7,7 +7,7 @@ import { Spacedcard } from "src/entities/spacedcard";
 import { Clozecard } from "src/entities/clozecard";
 import { escapeMarkdown } from "src/utils";
 import { Card } from "src/entities/card";
-import { htmlToMarkdown } from 'obsidian';
+import { htmlToMarkdown,MarkdownRenderer } from 'obsidian';
 import {md2cardMatchs} from "./qxxparser.js"
 
 export class Parser {
@@ -29,7 +29,7 @@ export class Parser {
   }
 
   /**
-   * 
+   * qxx: 从ob文件里扫描、获取卡片
    * @param file 文件内容
    * @param deck 
    * @param vault 
@@ -37,13 +37,13 @@ export class Parser {
    * @param globalTags 
    * @returns 
    */
-  public generateFlashcards(
+  public async generateFlashcards(
     file: string,
     deck: string,
     vault: string,
     note: string,
     globalTags: string[] = []
-  ): Flashcard[] {
+  ): Promise<Flashcard[]> {
     const contextAware = this.settings.contextAwareMode;
     let cards: Flashcard[] = [];
     let headings: any = [];
@@ -56,13 +56,13 @@ export class Parser {
     note = this.substituteObsidianLinks(`[[${note}]]`, vault);
     //qxx 通过标签解析卡片
     cards = cards.concat(
-      this.generateCardsWithTag(file, headings, deck, vault, note, globalTags)
+      await this.generateCardsWithTag(file, headings, deck, vault, note, globalTags)
     );
     cards = cards.concat(
-      this.generateInlineCards(file, headings, deck, vault, note, globalTags)
+        await this.generateInlineCards(file, headings, deck, vault, note, globalTags)
     );
     cards = cards.concat(
-      this.generateSpacedCards(file, headings, deck, vault, note, globalTags)
+        await this.generateSpacedCards(file, headings, deck, vault, note, globalTags)
     );
 	//qxx 2023-01-14, 我暂时用不着, 注释掉;
     // cards = cards.concat(
@@ -160,7 +160,7 @@ export class Parser {
     return context;
   }
 
-  private generateSpacedCards(
+  private async generateSpacedCards(
     file: string,
     headings: any,
     deck: string,
@@ -192,7 +192,7 @@ export class Parser {
         : match[2].trim();
       let medias: string[] = this.getImageLinks(prompt);
       medias = medias.concat(this.getAudioLinks(prompt));
-      prompt = this.parseLine(prompt, vault);
+      prompt = await this.parseLine(prompt, vault);
 
       const initialOffset = match.index;
       const endingLine = match.index + match[0].length;
@@ -224,7 +224,7 @@ export class Parser {
     return cards;
   }
 
-  private generateClozeCards(
+  private async generateClozeCards(
     file: string,
     headings: any,
     deck: string,
@@ -288,7 +288,7 @@ export class Parser {
         : clozeText.trim();
       let medias: string[] = this.getImageLinks(clozeText);
       medias = medias.concat(this.getAudioLinks(clozeText));
-      clozeText = this.parseLine(clozeText, vault);
+      clozeText = await this.parseLine(clozeText, vault);
 
       const initialOffset = match.index;
       const endingLine = match.index + match[0].length;
@@ -320,7 +320,7 @@ export class Parser {
     return cards;
   }
 
-  private generateInlineCards(
+  private async generateInlineCards(
     file: string,
     headings: any,
     deck: string,
@@ -361,8 +361,8 @@ export class Parser {
       let medias: string[] = this.getImageLinks(question);
       medias = medias.concat(this.getImageLinks(answer));
       medias = medias.concat(this.getAudioLinks(answer));
-      question = this.parseLine(question, vault);
-      answer = this.parseLine(answer, vault);
+      question =await this.parseLine(question, vault);
+      answer =await this.parseLine(answer, vault);
 
       const initialOffset = match.index
       const endingLine = match.index + match[0].length;
@@ -404,7 +404,7 @@ export class Parser {
    * @param globalTags 
    * @returns 
    */
-  private generateCardsWithTag(
+  private async generateCardsWithTag(
     file: string,
     headings: any,
     deck: string,
@@ -446,8 +446,8 @@ export class Parser {
 
       answer = this.getEmbedWrapContent(embedMap, answer);
 
-      question = this.parseLine(question, vault);
-      answer = this.parseLine(answer, vault);
+      question =await this.parseLine(question, vault);
+      answer =await this.parseLine(answer, vault);
 
       const initialOffset = match.index
 	  //qxx endingLine实际应该是endOffset
@@ -496,15 +496,32 @@ export class Parser {
     });
   }
 
-  private parseLine(str: string, vaultName: string) {
-    return this.htmlConverter.makeHtml(
-      this.mathToAnki(
-        this.substituteObsidianLinks(
-          this.substituteImageLinks(this.substituteAudioLinks(str)),
-          vaultName
-        )
-      )
-    );
+  private async parseLine(str: string, vaultName: string) {
+    console.debug('qxx test parseLine',{str,vaultName})
+    const strParsed = this.substituteImageLinks(this.substituteAudioLinks(str));
+    let html = ""
+    // html =  this.htmlConverter.makeHtml(
+    //   this.mathToAnki(
+    //     this.substituteObsidianLinks(
+    //         strParsed,
+    //         vaultName
+    //       )
+    //   )
+    // );
+    // console.debug('qxx test parseLine',{html,strParsed})
+    const markdown = strParsed;
+    const wrapper = document.createElement('div');
+    wrapper.style.display = 'none';
+    document.body.appendChild(wrapper);
+    const p = (window as any).qxx_flashcard_plugin;
+    await (MarkdownRenderer as any).render(p.app,markdown, wrapper, "", p)
+
+    console.debug('qxx test renderMarkdown',wrapper.innerHTML)
+    html = wrapper.innerHTML;
+    document.body.removeChild(wrapper)
+    //处理html,删除结尾的undefined
+    html = html.replace(/(undefined)+<\/p>/,"</p>")
+    return html;
   }
 
   private getImageLinks(str: string) {
