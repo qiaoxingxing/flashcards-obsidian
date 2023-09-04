@@ -114,11 +114,16 @@ export default class ObsidianFlashcard extends Plugin {
     }
     private showMsg(msg: String, type?: String): void {
         const notice = new Notice("", 5000);
-        let color = "white"
+        let color = "red"
         if (msg.toLowerCase().includes("error")) {
             color = "red"
-        } else if (msg.includes("successful")) {
+        } else if (
+			msg.includes("successful") ||
+			msg.includes("moved in new deck") 
+		) {
             color = "green"
+        } else if (msg.includes("Nothing to do")) {
+            color = "white"
         }
         // @ts-ignore
         notice.noticeEl.innerHTML = `<span style="color:${color}">${msg}</span>`;
