@@ -42,7 +42,8 @@ export class Regex {
       /!\[\[(.*\.(?:mp3|webm|wav|m4a|ogg|3gp|flac)).*?\]\]/gim;
 
     // https://regex101.com/r/eqnJeW/1
-    this.obsidianCodeBlock = /(?:```(?:.*?\n?)+?```)(?:\n|$)/gim;
+    // this.obsidianCodeBlock = /(?:```(?:.*?\n?)+?```)(?:\n|$)/gim;
+    this.obsidianCodeBlock = /```.*?```/gmis;
 
     this.codeBlock = /<code\b[^>]*>(.*?)<\/code>/gims;
 
