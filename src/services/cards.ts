@@ -86,7 +86,7 @@ export class CardsService {
         ? await this.anki.getCards(this.getAnkiIDs(ankiBlocks))
         : undefined;
 
-      const cards: Card[] = this.parser.generateFlashcards(
+      const cards: Card[] = await this.parser.generateFlashcards(
         this.file,
         deckName,
         vaultName,
@@ -234,9 +234,13 @@ export class CardsService {
     let newFrontmatter = "";
     const cardsDeckLine = `cards-deck: ${deckName}\n`;
     if (frontmatter) {
+		const startIndex = this.file.indexOf('---')
+		const endIndex = this.file.indexOf('---',startIndex+3)+3
       const oldFrontmatter: string = this.file.substring(
-        frontmatter.position.start.offset,
-        frontmatter.position.end.offset
+        // frontmatter.position.start.offset,
+		// frontmatter.position.end.offset
+		0,
+        endIndex
       );
       if (!oldFrontmatter.match(this.regex.cardsDeckLine)) {
         newFrontmatter =
@@ -247,7 +251,8 @@ export class CardsService {
         this.file =
           newFrontmatter +
           this.file.substring(
-            frontmatter.position.end.offset,
+            // frontmatter.position.end.offset,
+			endIndex,
             this.file.length + 1
           );
       }

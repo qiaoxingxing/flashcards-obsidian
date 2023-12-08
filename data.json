@@ -8,7 +8,8 @@
   "folderBasedDeck": false,
   "flashcardsTag": "card",
   "inlineSeparator": "::::",
-  "inlineSeparatorReverse": ":::zuofei",
+  "inlineSeparatorReverse": ":::zuofei000",
   "defaultAnkiTag": "obsidian",
-  "ankiConnectPermission": false
+  "ankiConnectPermission": false,
+  "otherConfigs": "{\"recentFilesCount\":50}"
 }

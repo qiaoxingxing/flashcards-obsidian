@@ -214,6 +214,19 @@ export class SettingsTab extends PluginSettingTab {
           });
       });
 
+      new Setting(containerEl)
+      .setName("other configs")
+      .setDesc("json config")
+      .addTextArea((textArea) => {
+        textArea
+          .setValue(plugin.settings.otherConfigs)
+          .setPlaceholder("{}")
+          .onChange((value) => {
+            if (!value) new Notice("No config will be added");
+            plugin.settings.otherConfigs = value;
+            plugin.saveData(plugin.settings);
+          });
+      });
 
   }
 }
